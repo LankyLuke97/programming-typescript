@@ -1,7 +1,7 @@
 console.log("Chapter 5, Exercise 1: Flattening")
 
-const flatten = (arr: any[]) => {
-    let flattened: any[] = []
+const flatten = <T>(arr: T[]) => {
+    let flattened: T[] = []
     for (let sub of arr) {
         flattened = flattened.concat(sub)
     }
@@ -31,14 +31,14 @@ loop(10, x => { return x > 0 }, x => { return x - 1 }, x => console.log(`Custom 
 
 console.log("Chapter 5, Exercise 3: Everything")
 
-const every = (arr: any[], test: (arg: any) => boolean) => {
+const every = <T>(arr: T[], test: (arg: T) => boolean) => {
     for (let elem of arr) {
         if (!(test(elem))) return false
     }
     return true
 }
 
-const everySome = (arr: any[], test: (arg: any) => boolean) => !arr.some(x => !test(x))
+const everySome = <T>(arr: T[], test: (arg: T) => boolean) => !arr.some(x => !test(x))
 
 let all_even = [2,4,6,8]
 let some_odd = [2,3,4,5]
