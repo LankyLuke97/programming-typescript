@@ -38,3 +38,16 @@ async function activityTable(day: number) {
     return table;
 }
 
+console.log("Chapter 11, Exercise 2: Real Promises");
+
+function activityTable(day: number) {
+    let table = new Array(24).fill(0);
+    return textFile("camera_logs.txt").then(files => {
+        return Promise.all(files.split(/\r?\n/).map(log => {
+            return textFile(log).then(lines => {
+                let dates = lines.split(/\r?\n/).map(line => new Date(Number(line))).filter(date => date.getDay() == day);
+                for (let date of dates) table[date.getHours()]++;
+            });
+        }));
+    }).then(() => table);
+}
