@@ -52,4 +52,81 @@ function parse(program) {
     return expr;
 }
 console.log(parse("+(a,10)"));
+const specialForms = Object.create(null);
+function evaluate(expr, scope) {
+    if (expr.type == "value")
+        return expr.value;
+    if (expr.type == "word") {
+        if (!(expr.name in scope))
+            throw new ReferenceError(`Undefined binding: ${expr.name}`);
+        return scope[expr.name];
+    }
+    let { operator, args } = expr;
+    if (operator.type == "word" && operator.name in specialForms)
+        return specialForms[operator.name](expr.args, scope);
+    let op = evaluate(operator, scope);
+    if (typeof op == "function")
+        return op(...args.map(arg => evaluate(arg, scope)));
+    throw new TypeError("Applying a non-function.");
+}
+// Add keywords to Egg
+//
+specialForms.if = (args, scope) => {
+    if (args.length != 3)
+        throw new SyntaxError("Wrong number of args to if");
+    const [cond, first, second] = args;
+    if (evaluate(cond, scope) !== false)
+        return evaluate(first, scope);
+    return evaluate(second, scope);
+};
+specialForms.while = (args, scope) => {
+    if (args.length != 2)
+        throw new SyntaxError("Wrong number of args to while");
+    const [cond, expr] = args;
+    while (evaluate(cond, scope) !== false)
+        evaluate(expr, scope);
+    return false;
+};
+specialForms.do = (args, scope) => {
+    let value = false;
+    for (let arg of args)
+        value = evaluate(arg, scope);
+    return value;
+};
+specialForms.define = (args, scope) => {
+    if (args.length != 2)
+        throw new SyntaxError("Incorrect use of define");
+    const [expr1, expr2] = args;
+    if (expr1.type != "word")
+        throw new SyntaxError("Incorrect use of define");
+    let value = evaluate(expr2, scope);
+    scope[expr1.name] = value;
+    return value;
+};
+const topScope = Object.create(null);
+topScope.true = true;
+topScope.false = false;
+for (let op of ["+", "-", "*", "/", "==", "<", ">"]) {
+    topScope[op] = Function("a, b", `return a ${op} b;`);
+}
+topScope.print = (value) => {
+    console.log(value);
+    return value;
+};
+let prog = parse(`if(true, false, true)`);
+console.log(evaluate(prog, topScope));
+function run(program) {
+    return evaluate(parse(program), Object.create(topScope));
+}
+run(`
+do(define(total, 0),
+   define(count, 1),
+   while(<(count, 11),
+         do(define(total, +(total, count)),
+            define(count, +(count, 1))
+           )
+        ),
+   print(total)
+  )
+`);
 //# sourceMappingURL=index.js.map

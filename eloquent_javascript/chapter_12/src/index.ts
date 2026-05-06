@@ -16,6 +16,8 @@ type ParseResult = {
   rest: string;
 };
 
+type Value = false | string | number | ((...args: Value[]) => Value);
+
 function skipSpace(program: string) {
     let index = program.search(/\S/)
     if (index == -1) return ""
@@ -43,7 +45,7 @@ function parseApply(expr: Expression, program: string): ParseResult {
 
     program = skipSpace(program.slice(1));
     const applyExpr: ApplyExpression = {
-            type: "apply",
+        type: "apply",
         operator: expr,
         args: []
     };
@@ -67,3 +69,85 @@ function parse(program: string): Expression {
 
 console.log(parse("+(a,10)"));
 
+const specialForms = Object.create(null);
+
+function evaluate(expr: Expression, scope: Record<string, Value>): Value {
+    if (expr.type == "value") return expr.value;
+    
+    if (expr.type == "word") {
+        if (!(expr.name in scope)) throw new ReferenceError(`Undefined binding: ${expr.name}`);
+        return scope[expr.name]!;
+    }
+    
+    let {operator, args} = expr;
+    if (operator.type == "word" && operator.name in specialForms) return specialForms[operator.name]!(expr.args, scope);
+    
+    let op = evaluate(operator, scope);
+    if (typeof op == "function") return op(...args.map(arg => evaluate(arg, scope)));
+    
+    throw new TypeError("Applying a non-function.")
+}
+
+// Add keywords to Egg
+//
+specialForms.if = (args: Expression[], scope: Record<string, Value>): Value => {
+    if (args.length != 3) throw new SyntaxError("Wrong number of args to if");
+    const [cond, first, second] = args as [Expression, Expression, Expression]
+
+    if (evaluate(cond, scope) !== false) return evaluate(first, scope);
+    return evaluate(second, scope);
+}
+
+specialForms.while = (args: Expression[], scope: Record<string, Value>): Value => {
+    if (args.length != 2) throw new SyntaxError("Wrong number of args to while");
+    const [cond, expr] = args as [Expression, Expression]
+
+    while (evaluate(cond, scope) !== false) evaluate(expr, scope);
+    return false
+}
+
+specialForms.do = (args: Expression[], scope: Record<string, Value>): Value => {
+    let value: Value = false;
+    for (let arg of args) value = evaluate(arg, scope);
+    return value;
+}
+
+specialForms.define = (args: Expression[], scope: Record<string, Value>): Value => {
+    if (args.length != 2) throw new SyntaxError("Incorrect use of define");
+    const [expr1, expr2] = args as [Expression, Expression]
+    if (expr1.type != "word") throw new SyntaxError("Incorrect use of define");
+    let value = evaluate(expr2, scope);
+    scope[expr1.name] = value;
+    return value;
+}
+
+const topScope = Object.create(null);
+
+topScope.true = true;
+topScope.false = false;
+for (let op of ["+", "-", "*", "/", "==", "<", ">"]) {
+    topScope[op] = Function("a, b", `return a ${op} b;`);
+}
+topScope.print = (value: Value) => {
+    console.log(value);
+    return value;
+};
+
+let prog = parse(`if(true, false, true)`);
+console.log(evaluate(prog, topScope));
+
+function run(program: string): Value {
+    return evaluate(parse(program), Object.create(topScope));
+}
+
+run(`
+do(define(total, 0),
+   define(count, 1),
+   while(<(count, 11),
+         do(define(total, +(total, count)),
+            define(count, +(count, 1))
+           )
+        ),
+   print(total)
+  )
+`);
