@@ -5,7 +5,11 @@ function skipSpace(program) {
     let index = program.search(/\S/);
     if (index == -1)
         return "";
-    return program.slice(index);
+    program = program.slice(index);
+    let match = program.match(/^#.*\r?\n/);
+    if (!match || !(match.length))
+        return program;
+    return program.slice(match[0].length);
 }
 function parseExpression(program) {
     program = skipSpace(program);
@@ -156,9 +160,10 @@ do(define(plusOne, fun(a, +(a, 1))),
 run(`
 do(define(pow, fun(base, exp,
              if(==(exp, 0),
-                1,
+                1, # this should not interfere
                 *(base, pow(base, -(exp, 1))))
                )
+             # nor should this
          ),
    print(pow(2, 10))
   )

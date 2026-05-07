@@ -19,9 +19,12 @@ type ParseResult = {
 type Value = false | string | number | ((...args: Value[]) => Value);
 
 function skipSpace(program: string) {
-    let index = program.search(/\S/)
-    if (index == -1) return ""
-    return program.slice(index)
+    let index = program.search(/\S/);
+    if (index == -1) return "";
+    program = program.slice(index);
+    let match = program.match(/^#.*\r?\n/);
+    if (!match || !(match.length)) return program;
+    return program.slice(match[0]!.length);
 }
 
 function parseExpression(program: string): ParseResult {
@@ -179,11 +182,14 @@ do(define(plusOne, fun(a, +(a, 1))),
 run(`
 do(define(pow, fun(base, exp,
              if(==(exp, 0),
-                1,
+                1, # this should not interfere
                 *(base, pow(base, -(exp, 1))))
                )
+             # nor should this
          ),
    print(pow(2, 10))
   )
 `);
+
+
 
