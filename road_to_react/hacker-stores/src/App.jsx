@@ -26,12 +26,18 @@ const list = [
 function App() {
     return (
         <div>
-            <h1>Learning React</h1>
-            <label htmlFor="search">Search: </label>
-            <input id="search" type="text" />
+            <Search />
 
             <hr />
+            
+            <List />
+        </div>
+    );
+}
 
+function List() {
+    return (
+        <ul>
             {list.map(item => {
                 {/* Without the key, there is an error in the console; doesn't stop from rendering 
                     This is because, upon re-rendering a list, React checks whether an item has changed,
@@ -49,8 +55,19 @@ function App() {
                     </li>
                 );
             })}
+        </ul>
+    )
+}
+
+function Search() {
+    return (
+        <div>
+            <h1>Learning React</h1>
+            <label htmlFor="search">Search: </label>
+            <input id="search" type="text" />
         </div>
     );
 }
 
 export default App;
+
