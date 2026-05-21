@@ -23,55 +23,47 @@ const list = [
      },
 ];
 
-function App() {
-    return (
-        <div>
-            <Search />
+const App = () => (
+    <div>
+        <Search />
 
-            <hr />
-            
-            <List />
-        </div>
-    );
-}
+        <hr />
+        
+        <List />
+    </div>
+);
 
-function List() {
-    return (
-        <ul>
-            {list.map(item => {
-                return <ListItem item={item} />
-            })}
-        </ul>
-    )
-}
 
-function ListItem({item}) {
-    {/* Without the key, there is an error in the console; doesn't stop from rendering 
-        This is because, upon re-rendering a list, React checks whether an item has changed,
-        and it can efficiently exchange changed items; without the keys, it may be done 
-        inefficiently. Using the index of the item should be avoided: if you were to insert 
-        an item near the start of the list, all subsequent items will have new keys and 
-        will be re-rendered.
-    */}
-    return (
+const List = () => (
+    <ul>
+        {list.map(item => <ListItem item={item} />)}
+    </ul>
+);
+
+
+{/* Without the key, there is an error in the console; doesn't stop from rendering 
+    This is because, upon re-rendering a list, React checks whether an item has changed,
+    and it can efficiently exchange changed items; without the keys, it may be done 
+    inefficiently. Using the index of the item should be avoided: if you were to insert 
+    an item near the start of the list, all subsequent items will have new keys and 
+    will be re-rendered.
+*/}
+const ListItem = ({item}) => (
         <li key={item.objectID}>
             <span><a href={item.url}>{item.title}</a>, </span>
             <span>{item.author}, </span>
             <span>{item.num_comments}, </span>
             <span>{item.points}</span>
         </li>
-    );
-}
+);
 
-function Search() {
-    return (
-        <div>
-            <h1>Learning React</h1>
-            <label htmlFor="search">Search: </label>
-            <input id="search" type="text" />
-        </div>
-    );
-}
+const Search = () => (
+    <div>
+        <h1>Learning React</h1>
+        <label htmlFor="search">Search: </label>
+        <input id="search" type="text" />
+    </div>
+);
 
 export default App;
 
