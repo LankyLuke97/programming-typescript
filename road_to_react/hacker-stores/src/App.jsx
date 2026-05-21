@@ -39,24 +39,28 @@ function List() {
     return (
         <ul>
             {list.map(item => {
-                {/* Without the key, there is an error in the console; doesn't stop from rendering 
-                    This is because, upon re-rendering a list, React checks whether an item has changed,
-                    and it can efficiently exchange changed items; without the keys, it may be done 
-                    inefficiently. Using the index of the item should be avoided: if you were to insert 
-                    an item near the start of the list, all subsequent items will have new keys and 
-                    will be re-rendered.
-                */}
-                return (
-                    <li key={item.objectID}>
-                        <span><a href={item.url}>{item.title}</a>, </span>
-                        <span>{item.author}, </span>
-                        <span>{item.num_comments}, </span>
-                        <span>{item.points}</span>
-                    </li>
-                );
+                return <ListItem item={item} />
             })}
         </ul>
     )
+}
+
+function ListItem({item}) {
+    {/* Without the key, there is an error in the console; doesn't stop from rendering 
+        This is because, upon re-rendering a list, React checks whether an item has changed,
+        and it can efficiently exchange changed items; without the keys, it may be done 
+        inefficiently. Using the index of the item should be avoided: if you were to insert 
+        an item near the start of the list, all subsequent items will have new keys and 
+        will be re-rendered.
+    */}
+    return (
+        <li key={item.objectID}>
+            <span><a href={item.url}>{item.title}</a>, </span>
+            <span>{item.author}, </span>
+            <span>{item.num_comments}, </span>
+            <span>{item.points}</span>
+        </li>
+    );
 }
 
 function Search() {
