@@ -36,7 +36,7 @@ const App = () => (
 
 const List = () => (
     <ul>
-        {list.map(item => <ListItem item={item} />)}
+        {list.map(item => <ListItem key={item.objectID} item={item} />)}
     </ul>
 );
 
@@ -47,9 +47,13 @@ const List = () => (
     inefficiently. Using the index of the item should be avoided: if you were to insert 
     an item near the start of the list, all subsequent items will have new keys and 
     will be re-rendered.
+    
+    Crucially, this is not a key on the list item. It is for React's diffing engine.
+    When I extracted out the ListItem as its own component, it needed to be added to the
+    ListItem element in the map in the List component.
 */}
 const ListItem = ({item}) => (
-        <li key={item.objectID}>
+        <li>
             <span><a href={item.url}>{item.title}</a>, </span>
             <span>{item.author}, </span>
             <span>{item.num_comments}, </span>
