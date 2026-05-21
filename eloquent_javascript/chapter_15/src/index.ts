@@ -44,3 +44,41 @@
   window.addEventListener("keydown", increase);
   window.addEventListener("keyup", decrease);
 </script>
+
+// Chapter 15, Exercise 2: Mouse Trail
+//
+<!doctype html>
+
+<style>
+  .trail { /* className for the trail elements */
+    position: absolute;
+    height: 6px; width: 6px;
+    border-radius: 3px;
+    background: teal;
+  }
+  body {
+    height: 300px;
+  }
+</style>
+
+<script>
+  let trailArray = [];
+  let numTrail = 15;
+  let curTrail = 0;
+  for (let i = 0; i < numTrail; i++) {
+    let trail = document.createElement("div");
+    trail.className = "trail";
+    trail.style.top = "0px";
+    trail.style.top = "0px";
+    trailArray.push(trail);
+    document.body.appendChild(trail);
+  }
+
+  window.addEventListener("mousemove", event => {
+    let trail = trailArray[curTrail];
+    curTrail++;
+    if (curTrail == numTrail) curTrail = 0;
+    trail.style.top = event.pageY + "px";
+    trail.style.left = event.pageX + "px";
+  });
+</script>
