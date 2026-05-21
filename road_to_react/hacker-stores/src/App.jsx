@@ -61,13 +61,22 @@ const ListItem = ({item}) => (
         </li>
 );
 
-const Search = () => (
-    <div>
-        <h1>Learning React</h1>
-        <label htmlFor="search">Search: </label>
-        <input id="search" type="text" />
-    </div>
-);
+const Search = () => {
+    const handleChange = event => {
+        console.log(event);
+        console.log(event.target.value);
+    }
+    return (
+        <div>
+            <h1>Learning React</h1>
+            <label htmlFor="search">Search: </label>
+            <input id="search" type="text" onChange={handleChange}/>
+            {/* Always pass functions to handlers, not the return value -
+                unless the function returns another function.
+            */}
+        </div>
+    );
+};
 
 export default App;
 
