@@ -24,9 +24,11 @@ const App = () => {
          },
     ];
 
+    const handleSearch = event => console.log(event.target.value);
+
     return (
         <div>
-            <Search />
+            <Search onSearch={handleSearch} />
 
             <hr />
             
@@ -62,11 +64,13 @@ const ListItem = props => (
         </li>
 );
 
-const Search = () => {
+const Search = props => {
+    const [searchTerm, setSearchTerm] = useState('')
     const handleChange = event => {
-        console.log(event);
-        console.log(event.target.value);
-    }
+        setSearchTerm(event.target.value);
+        props.onSearch(event);
+    };
+    
     return (
         <div>
             <h1>Learning React</h1>
