@@ -4,39 +4,40 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
-const list = [
-     {
-          title: 'React',
-          url: 'https://react.dev/',
-          author: 'Jordan Walke',
-          num_comments: 3,
-          points: 4,
-          objectID: 0,
-     },
-     {
-          title: 'Redux',
-          url: 'https://redux.js.org/',
-          author: 'Dan Abramov, Andrew Clark',
-          num_comments: 2,
-          points: 5,
-          objectID: 1,
-     },
-];
+const App = () => {
+    const stories = [
+         {
+              title: 'React',
+              url: 'https://react.dev/',
+              author: 'Jordan Walke',
+              num_comments: 3,
+              points: 4,
+              objectID: 0,
+         },
+         {
+              title: 'Redux',
+              url: 'https://redux.js.org/',
+              author: 'Dan Abramov, Andrew Clark',
+              num_comments: 2,
+              points: 5,
+              objectID: 1,
+         },
+    ];
 
-const App = () => (
-    <div>
-        <Search />
+    return (
+        <div>
+            <Search />
 
-        <hr />
-        
-        <List />
-    </div>
-);
+            <hr />
+            
+            <List items={stories} />
+        </div>
+    );
+}
 
-
-const List = () => (
+const List = props => (
     <ul>
-        {list.map(item => <ListItem key={item.objectID} item={item} />)}
+        {props.items.map(item => <ListItem key={item.objectID} item={item} />)}
     </ul>
 );
 
@@ -52,12 +53,12 @@ const List = () => (
     When I extracted out the ListItem as its own component, it needed to be added to the
     ListItem element in the map in the List component.
 */}
-const ListItem = ({item}) => (
+const ListItem = props => (
         <li>
-            <span><a href={item.url}>{item.title}</a>, </span>
-            <span>{item.author}, </span>
-            <span>{item.num_comments}, </span>
-            <span>{item.points}</span>
+            <span><a href={props.item.url}>{props.item.title}</a>, </span>
+            <span>{props.item.author}, </span>
+            <span>{props.item.num_comments}, </span>
+            <span>{props.item.points}</span>
         </li>
 );
 
