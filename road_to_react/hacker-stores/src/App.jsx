@@ -5,6 +5,8 @@ import heroImg from './assets/hero.png'
 import './App.css'
 
 const App = () => {
+    const [searchTerm, setSearchTerm] = useState('')
+
     const stories = [
          {
               title: 'React',
@@ -24,7 +26,9 @@ const App = () => {
          },
     ];
 
-    const handleSearch = event => console.log(event.target.value);
+    const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
+
+    const handleSearch = event => setSearchTerm(event.target.value);
 
     return (
         <div>
@@ -32,7 +36,7 @@ const App = () => {
 
             <hr />
             
-            <List items={stories} />
+            <List items={filteredStories}  />
         </div>
     );
 }
@@ -65,17 +69,11 @@ const ListItem = props => (
 );
 
 const Search = props => {
-    const [searchTerm, setSearchTerm] = useState('')
-    const handleChange = event => {
-        setSearchTerm(event.target.value);
-        props.onSearch(event);
-    };
-    
     return (
         <div>
             <h1>Learning React</h1>
             <label htmlFor="search">Search: </label>
-            <input id="search" type="text" onChange={handleChange}/>
+            <input id="search" type="text" onChange={props.onSearch}/>
             {/* Always pass functions to handlers, not the return value -
                 unless the function returns another function.
             */}
