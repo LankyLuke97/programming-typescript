@@ -32,7 +32,7 @@ const App = () => {
 
     return (
         <div>
-            <Search onSearch={handleSearch} />
+            <Search search={searchTerm} onSearch={handleSearch} />
 
             <hr />
             
@@ -73,7 +73,7 @@ const Search = props => {
         <div>
             <h1>Learning React</h1>
             <label htmlFor="search">Search: </label>
-            <input id="search" type="text" onChange={props.onSearch}/>
+            <input id="search" type="text" value={props.search} onChange={props.onSearch}/>
             {/* Always pass functions to handlers, not the return value -
                 unless the function returns another function.
             */}
