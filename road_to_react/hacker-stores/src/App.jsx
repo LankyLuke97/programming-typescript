@@ -4,8 +4,14 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+const useStorageState = (key, initialState) => {
+    const [state, setState] = useState(localStorage.getItem(key) || initialState);
+    useEffect(() => localStorage.setItem(key, state), [key, state]);
+    return [state, setState]
+};
+
 const App = () => {
-    const [searchTerm, setSearchTerm] = useState(localStorage.getItem('search') ?? '')
+    const [searchTerm, setSearchTerm] = useStorageState('search', '')
 
     const stories = [
          {
@@ -28,8 +34,6 @@ const App = () => {
 
     const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
     const handleSearch = event => setSearchTerm(event.target.value);
-
-    useEffect(() => localStorage.setItem('search', searchTerm), [searchTerm]);
 
     return (
         <div>
