@@ -37,7 +37,7 @@ const App = () => {
     return (
         <div>
             <h1>Learning React</h1>
-            <Search search={searchTerm} onSearch={handleSearch} />
+            <InputWithLabel id="search" label="Search:" search={searchTerm} onSearch={handleSearch} />
 
             <hr />
             
@@ -77,11 +77,12 @@ const ListItem = ({item}) => (
         </li>
 );
 
-const Search = ({search, onSearch}) => {
+const InputWithLabel = ({id, label, value, type='text', onInputChange}) => {
     return (
         <>
-            <label htmlFor="search">Search: </label>
-            <input id="search" type="text" value={search} onChange={onSearch}/>
+            <label htmlFor={id}>{label}</label>
+            &nbsp;
+            <input id={id} type={type} value={value} onChange={onInputChange}/>
             {/* Always pass functions to handlers, not the return value -
                 unless the function returns another function.
             */}
