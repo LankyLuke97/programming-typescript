@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
 const App = () => {
-    const [searchTerm, setSearchTerm] = useState('')
+    const [searchTerm, setSearchTerm] = useState(localStorage.getItem('search') ?? '')
 
     const stories = [
          {
@@ -27,8 +27,9 @@ const App = () => {
     ];
 
     const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
-
     const handleSearch = event => setSearchTerm(event.target.value);
+
+    useEffect(() => localStorage.setItem('search', searchTerm), [searchTerm]);
 
     return (
         <div>
@@ -41,9 +42,9 @@ const App = () => {
     );
 }
 
-const List = props => (
+const List = ({items}) => (
     <ul>
-        {props.items.map(item => <ListItem key={item.objectID} item={item} />)}
+        {items.map(item => <ListItem key={item.objectID} item={item} />)}
     </ul>
 );
 
@@ -59,21 +60,25 @@ const List = props => (
     When I extracted out the ListItem as its own component, it needed to be added to the
     ListItem element in the map in the List component.
 */}
-const ListItem = props => (
+{/* Could also destructure here with url, title, etc., and then
+    in the list component destructure the props as list.map(objectID, ...item => {...} 
+    and then use the spread operator for the ListItem element.
+*/}
+const ListItem = ({item}) => (
         <li>
-            <span><a href={props.item.url}>{props.item.title}</a>, </span>
-            <span>{props.item.author}, </span>
-            <span>{props.item.num_comments}, </span>
-            <span>{props.item.points}</span>
+            <span><a href={item.url}>{item.title}</a>, </span>
+            <span>{item.author}, </span>
+            <span>{item.num_comments}, </span>
+            <span>{item.points}</span>
         </li>
 );
 
-const Search = props => {
+const Search = ({search, onSearch}) => {
     return (
         <div>
             <h1>Learning React</h1>
             <label htmlFor="search">Search: </label>
-            <input id="search" type="text" value={props.search} onChange={props.onSearch}/>
+            <input id="search" type="text" value={search} onChange={onSearch}/>
             {/* Always pass functions to handlers, not the return value -
                 unless the function returns another function.
             */}
