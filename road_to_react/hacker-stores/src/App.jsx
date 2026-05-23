@@ -31,12 +31,12 @@ const App = () => {
               objectID: 1,
          },
     ];
-
     const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
     const handleSearch = event => setSearchTerm(event.target.value);
 
     return (
         <div>
+            <h1>Learning React</h1>
             <Search search={searchTerm} onSearch={handleSearch} />
 
             <hr />
@@ -79,14 +79,13 @@ const ListItem = ({item}) => (
 
 const Search = ({search, onSearch}) => {
     return (
-        <div>
-            <h1>Learning React</h1>
+        <>
             <label htmlFor="search">Search: </label>
             <input id="search" type="text" value={search} onChange={onSearch}/>
             {/* Always pass functions to handlers, not the return value -
                 unless the function returns another function.
             */}
-        </div>
+        </>
     );
 };
 
