@@ -5,50 +5,53 @@ import heroImg from './assets/hero.png'
 import './App.css'
 
 const useStorageState = (key, initialState) => {
-    const [state, setState] = useState(localStorage.getItem(key) || initialState);
+    const [state, setState] = useState(localStorage.getItem(key) ?? initialState);
     useEffect(() => localStorage.setItem(key, state), [key, state]);
-    return [state, setState]
+    return [state, setState];
 };
 
-const App = () => {
-    const [searchTerm, setSearchTerm] = useStorageState('search', '')
+const initialStories = [
+     {
+          title: 'React',
+          url: 'https://react.dev/',
+          author: 'Jordan Walke',
+          num_comments: 3,
+          points: 4,
+          objectID: 0,
+     },
+     {
+          title: 'Redux',
+          url: 'https://redux.js.org/',
+          author: 'Dan Abramov, Andrew Clark',
+          num_comments: 2,
+          points: 5,
+          objectID: 1,
+     },
+];
 
-    const stories = [
-         {
-              title: 'React',
-              url: 'https://react.dev/',
-              author: 'Jordan Walke',
-              num_comments: 3,
-              points: 4,
-              objectID: 0,
-         },
-         {
-              title: 'Redux',
-              url: 'https://redux.js.org/',
-              author: 'Dan Abramov, Andrew Clark',
-              num_comments: 2,
-              points: 5,
-              objectID: 1,
-         },
-    ];
-    const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
+const App = () => {
+    const [searchTerm, setSearchTerm] = useStorageState('search', '');
+    const [stories, setStories] = useState(initialStories);
+
     const handleSearch = event => setSearchTerm(event.target.value);
+    const handleRemoveStory = item => setStories(stories.filter(story => item.objectID !== story.objectID));
+    const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
 
     return (
         <div>
             <h1>Learning React</h1>
-            <InputWithLabel id="search" search={searchTerm} onSearch={handleSearch}>Search:&nbsp;</InputWithLabel>
+            <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>Search:&nbsp;</InputWithLabel>
 
             <hr />
             
-            <List items={filteredStories}  />
+            <List items={filteredStories} onRemoveItem={handleRemoveStory} />
         </div>
     );
 }
 
-const List = ({items}) => (
+const List = ({items, onRemoveItem}) => (
     <ul>
-        {items.map(item => <ListItem key={item.objectID} item={item} />)}
+        {items.map(item => <ListItem key={item.objectID} item={item} onRemoveItem={onRemoveItem} />)}
     </ul>
 );
 
@@ -68,13 +71,15 @@ const List = ({items}) => (
     in the list component destructure the props as list.map(objectID, ...item => {...} 
     and then use the spread operator for the ListItem element.
 */}
-const ListItem = ({item}) => (
-        <li>
-            <span><a href={item.url}>{item.title}</a>, </span>
-            <span>{item.author}, </span>
-            <span>{item.num_comments}, </span>
-            <span>{item.points}</span>
-        </li>
+const ListItem = ({item, onRemoveItem}) => (
+    <li>
+        <span><a href={item.url}>{item.title}</a>, </span>
+        <span>{item.author}, </span>
+        <span>{item.num_comments}, </span>
+        <span>{item.points}</span>
+        &nbsp;
+        <span><button type="button"onClick={() => onRemoveItem(item)}>Remove</button></span>
+    </li>
 );
 
 const InputWithLabel = ({id, value, type='text', onInputChange, children}) => {
