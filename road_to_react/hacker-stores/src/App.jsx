@@ -61,17 +61,18 @@ const App = () => {
         isError: false
     });
 
-    const handleFetchStories = useCallback(() => {
+    const handleFetchStories = useCallback(async () => {
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
-        fetch(url)
-          .then(response => response.json())
-          .then(result => {
+        try {
+            const result = (await fetch(url)).json();
             dispatchStories({ 
                 type: storyActions.successFetch,
                 payload: result.hits,
             });
-          })
-          .catch(() => dispatchStories({ type: storyActions.failFetch }));
+        } catch (error) {
+            console.log(error);
+            dispatchStories({ type: storyActions.failFetch });
+        }
     }, [url]);
 
     const handleSearchInput = event => setSearchTerm(event.target.value);
