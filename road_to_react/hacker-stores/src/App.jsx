@@ -10,36 +10,43 @@ const useStorageState = (key, initialState) => {
     return [state, setState];
 };
 
-const initialStories = [
-     {
-          title: 'React',
-          url: 'https://react.dev/',
-          author: 'Jordan Walke',
-          num_comments: 3,
-          points: 4,
-          objectID: 0,
-     },
-     {
-          title: 'Redux',
-          url: 'https://redux.js.org/',
-          author: 'Dan Abramov, Andrew Clark',
-          num_comments: 2,
-          points: 5,
-          objectID: 1,
-     },
-];
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
 {/* The timeout in this function is to simulate delay while fetching data from elsewhere. This
     could be more succinctly written as:
     const getAsyncStories = () => Promise.resolve({ data: { stories: initialStories } });
 */}
-const getAsyncStories = () => new Promise((resolve) => setTimeout(() => resolve({ data: { stories: initialStories } }), 2000));
-const storyActions = { setStories: 'SET_STORIES', removeStory: 'REMOVE_STORY' };
+const storyActions = {  fetchStories: 'STORIES_FETCH_INIT',
+                        successFetch: 'STORIES_FETCH_SUCCESS',
+                        failFetch: 'STORIES_FETCH_FAILURE',
+                        removeStory: 'REMOVE_STORY'
+                     };
 const storiesReducer = (state, action) => {
     switch (action.type) {
-        case storyActions.setStories:
-            return action.payload;
+        case storyActions.fetchStories:
+            return {
+                ...state,
+                isLoading: true,
+                isError: false,
+            };
+        case storyActions.successFetch:
+            return {
+                ...state,
+                isLoading: false,
+                isError: false,
+                data: action.payload,
+            };
+        case storyActions.failFetch:
+            return {
+                ...state,
+                isLoading: false,
+                isError: true,
+            };
         case storyActions.removeStory:
-            return state.filter(item => item.objectID !== action.payload.objectID);
+            return {
+                ...state,
+                data: state.data.filter((story) => action.payload.objectID !== story.objectID),
+            };
         default:
             throw new Error();
     }
@@ -47,21 +54,23 @@ const storiesReducer = (state, action) => {
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useStorageState('search', '');
-    const [stories, dispatchStories] = useReducer(storiesReducer, []);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(false);
+    const [stories, dispatchStories] = useReducer(storiesReducer, {
+        data: [],
+        isLoading: false,
+        isError: false
+    });
 
     useEffect(() => {
-        setIsLoading(true);
-        getAsyncStories()
+        dispatchStories({ type: 'STORIES_FETCH_INIT' });
+        fetch(`${API_ENDPOINT}react`)
+          .then(response => response.json())
           .then(result => {
             dispatchStories({ 
-                type: storyActions.setStories,
-                payload: result.data.stories
+                type: storyActions.successFetch,
+                payload: result.hits,
             });
-            setIsLoading(false);
           })
-          .catch(() => setIsError(true));
+          .catch(() => dispatchStories({ type: storyActions.failFetch }));
     }, []);
 
     const handleSearch = event => setSearchTerm(event.target.value);
@@ -69,17 +78,18 @@ const App = () => {
         type: storyActions.removeStory,
         payload: item
     });
-    const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
+    const filteredStories = searchTerm ? stories.data.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories.data;
 
     return (
         <div>
             <h1>Learning React</h1>
             <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>Search:&nbsp;</InputWithLabel>
 
+            {console.log(stories)}
             <hr />
 
-            {isError && <p>Something went wrong...</p>}
-            {isLoading ? (
+            {stories.isError && <p>Something went wrong...</p>}
+            {stories.isLoading ? (
             <p>Loading...</p>
             ) : (
             <List items={filteredStories} onRemoveItem={handleRemoveStory} />
