@@ -61,8 +61,10 @@ const App = () => {
     });
 
     useEffect(() => {
+        if (!searchTerm || !searchTerm.trim()) return;
+
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
-        fetch(`${API_ENDPOINT}react`)
+        fetch(`${API_ENDPOINT}${searchTerm}`)
           .then(response => response.json())
           .then(result => {
             dispatchStories({ 
@@ -71,28 +73,26 @@ const App = () => {
             });
           })
           .catch(() => dispatchStories({ type: storyActions.failFetch }));
-    }, []);
+    }, [searchTerm]);
 
     const handleSearch = event => setSearchTerm(event.target.value);
     const handleRemoveStory = item => dispatchStories({
         type: storyActions.removeStory,
         payload: item
     });
-    const filteredStories = searchTerm ? stories.data.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories.data;
 
     return (
         <div>
             <h1>Learning React</h1>
             <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>Search:&nbsp;</InputWithLabel>
 
-            {console.log(stories)}
             <hr />
 
             {stories.isError && <p>Something went wrong...</p>}
             {stories.isLoading ? (
             <p>Loading...</p>
             ) : (
-            <List items={filteredStories} onRemoveItem={handleRemoveStory} />
+            <List items={stories.data} onRemoveItem={handleRemoveStory} />
             )}
         </div>
     );
