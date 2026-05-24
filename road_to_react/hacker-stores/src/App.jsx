@@ -62,8 +62,6 @@ const App = () => {
     });
 
     const handleFetchStories = useCallback(() => {
-        if (!searchTerm || !(searchTerm.trim())) return;
-
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
         fetch(url)
           .then(response => response.json())
