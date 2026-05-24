@@ -54,6 +54,7 @@ const storiesReducer = (state, action) => {
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useStorageState('search', '');
+    const [url, setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
     const [stories, dispatchStories] = useReducer(storiesReducer, {
         data: [],
         isLoading: false,
@@ -64,7 +65,7 @@ const App = () => {
         if (!searchTerm || !(searchTerm.trim())) return;
 
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
-        fetch(`${API_ENDPOINT}${searchTerm}`)
+        fetch(url)
           .then(response => response.json())
           .then(result => {
             dispatchStories({ 
@@ -73,9 +74,10 @@ const App = () => {
             });
           })
           .catch(() => dispatchStories({ type: storyActions.failFetch }));
-    }, [searchTerm]);
+    }, [url]);
 
-    const handleSearch = event => setSearchTerm(event.target.value);
+    const handleSearchInput = event => setSearchTerm(event.target.value);
+    const handleSearchSubmit = () => setUrl(`${API_ENDPOINT}${searchTerm}`);
     const handleRemoveStory = item => dispatchStories({
         type: storyActions.removeStory,
         payload: item
@@ -86,7 +88,8 @@ const App = () => {
     return (
         <div>
             <h1>Learning React</h1>
-            <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>Search:&nbsp;</InputWithLabel>
+            <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearchInput}>Search:&nbsp;</InputWithLabel>
+            <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>&#x1F50D;</button>
 
             <hr />
 
@@ -129,7 +132,7 @@ const ListItem = ({item, onRemoveItem}) => (
         <span>{item.num_comments}, </span>
         <span>{item.points}</span>
         &nbsp;
-        <span><button type="button"onClick={() => onRemoveItem(item)}>Remove</button></span>
+        <span><button type="button" onClick={() => onRemoveItem(item)}>Remove</button></span>
     </li>
 );
 
