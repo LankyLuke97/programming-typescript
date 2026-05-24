@@ -28,10 +28,27 @@ const initialStories = [
           objectID: 1,
      },
 ];
+{/* The timeout in this function is to simulate delay while fetching data from elsewhere. This
+    could be more succinctly written as:
+    const getAsyncStories = () => Promise.resolve({ data: { stories: initialStories } });
+*/}
+const getAsyncStories = () => new Promise((resolve) => setTimeout(() => resolve({ data: { stories: initialStories } }), 2000));
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useStorageState('search', '');
-    const [stories, setStories] = useState(initialStories);
+    const [stories, setStories] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
+
+    useEffect(() => {
+        setIsLoading(true);
+        getAsyncStories()
+          .then(result => {
+            setStories(result.data.stories)
+            setIsLoading(false);
+          })
+          .catch(() => setIsError(true));
+    }, []);
 
     const handleSearch = event => setSearchTerm(event.target.value);
     const handleRemoveStory = item => setStories(stories.filter(story => item.objectID !== story.objectID));
@@ -43,8 +60,13 @@ const App = () => {
             <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>Search:&nbsp;</InputWithLabel>
 
             <hr />
-            
+
+            {isError && <p>Something went wrong...</p>}
+            {isLoading ? (
+            <p>Loading...</p>
+            ) : (
             <List items={filteredStories} onRemoveItem={handleRemoveStory} />
+            )}
         </div>
     );
 }
