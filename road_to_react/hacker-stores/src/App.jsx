@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -60,8 +60,8 @@ const App = () => {
         isError: false
     });
 
-    useEffect(() => {
-        if (!searchTerm || !searchTerm.trim()) return;
+    const handleFetchStories = useCallback(() => {
+        if (!searchTerm || !(searchTerm.trim())) return;
 
         dispatchStories({ type: 'STORIES_FETCH_INIT' });
         fetch(`${API_ENDPOINT}${searchTerm}`)
@@ -80,6 +80,8 @@ const App = () => {
         type: storyActions.removeStory,
         payload: item
     });
+
+    useEffect(() => handleFetchStories(), [handleFetchStories]);
 
     return (
         <div>
