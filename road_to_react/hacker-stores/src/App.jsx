@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -33,10 +33,21 @@ const initialStories = [
     const getAsyncStories = () => Promise.resolve({ data: { stories: initialStories } });
 */}
 const getAsyncStories = () => new Promise((resolve) => setTimeout(() => resolve({ data: { stories: initialStories } }), 2000));
+const storyActions = { setStories: 'SET_STORIES', removeStory: 'REMOVE_STORY' };
+const storiesReducer = (state, action) => {
+    switch (action.type) {
+        case storyActions.setStories:
+            return action.payload;
+        case storyActions.removeStory:
+            return state.filter(item => item.objectID !== action.payload.objectID);
+        default:
+            throw new Error();
+    }
+};
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useStorageState('search', '');
-    const [stories, setStories] = useState([]);
+    const [stories, dispatchStories] = useReducer(storiesReducer, []);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 
@@ -44,14 +55,20 @@ const App = () => {
         setIsLoading(true);
         getAsyncStories()
           .then(result => {
-            setStories(result.data.stories)
+            dispatchStories({ 
+                type: storyActions.setStories,
+                payload: result.data.stories
+            });
             setIsLoading(false);
           })
           .catch(() => setIsError(true));
     }, []);
 
     const handleSearch = event => setSearchTerm(event.target.value);
-    const handleRemoveStory = item => setStories(stories.filter(story => item.objectID !== story.objectID));
+    const handleRemoveStory = item => dispatchStories({
+        type: storyActions.removeStory,
+        payload: item
+    });
     const filteredStories = searchTerm ? stories.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase())) : stories;
 
     return (
