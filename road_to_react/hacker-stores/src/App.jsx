@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -62,9 +62,10 @@ const App = () => {
     });
 
     const handleFetchStories = useCallback(async () => {
-        dispatchStories({ type: 'STORIES_FETCH_INIT' });
+        dispatchStories({ type: storyActions.fetchStories });
         try {
-            const result = (await fetch(url)).json();
+            const response = await fetch(url);
+            const result = await response.json();
             dispatchStories({ 
                 type: storyActions.successFetch,
                 payload: result.hits,
@@ -76,20 +77,21 @@ const App = () => {
     }, [url]);
 
     const handleSearchInput = event => setSearchTerm(event.target.value);
-    const handleSearchSubmit = () => setUrl(`${API_ENDPOINT}${searchTerm}`);
+    const handleSearchSubmit = event => {
+        setUrl(`${API_ENDPOINT}${searchTerm}`);
+        event.preventDefault();
+    };
     const handleRemoveStory = item => dispatchStories({
         type: storyActions.removeStory,
         payload: item
     });
 
-    useEffect(() => handleFetchStories(), [handleFetchStories]);
+    useEffect(() => {handleFetchStories()}, [handleFetchStories]);
 
     return (
         <div>
             <h1>Learning React</h1>
-            <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearchInput}>Search:&nbsp;</InputWithLabel>
-            <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>&#x1F50D;</button>
-
+            <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit} />
             <hr />
 
             {stories.isError && <p>Something went wrong...</p>}
@@ -135,7 +137,12 @@ const ListItem = ({item, onRemoveItem}) => (
     </li>
 );
 
-const InputWithLabel = ({id, value, type='text', onInputChange, children}) => {
+const InputWithLabel = ({id, value, type='text', onInputChange, isFocused, children}) => {
+    const inputRef = useRef();
+    useEffect(() => {
+        if (isFocused && inputRef.current) inputRef.current.focus();
+    }, [isFocused]);
+    
     return (
         <>
             <label htmlFor={id}>{children}</label>
@@ -146,6 +153,13 @@ const InputWithLabel = ({id, value, type='text', onInputChange, children}) => {
         </>
     );
 };
+
+const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
+    <form onSubmit={onSearchSubmit}>
+        <InputWithLabel id="search" value={searchTerm} isFocused onInputChange={onSearchInput}>Search:&nbsp;</InputWithLabel>
+        <button type="submit" disabled={!searchTerm}>&#x1F50D;</button>
+    </form>
+);
 
 export default App;
 
