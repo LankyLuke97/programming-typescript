@@ -77,10 +77,7 @@ const App = () => {
     }, [url]);
 
     const handleSearchInput = event => setSearchTerm(event.target.value);
-    const handleSearchSubmit = event => {
-        setUrl(`${API_ENDPOINT}${searchTerm}`);
-        event.preventDefault();
-    };
+    const searchAction = event => setUrl(`${API_ENDPOINT}${searchTerm}`);
     const handleRemoveStory = item => dispatchStories({
         type: storyActions.removeStory,
         payload: item
@@ -91,7 +88,7 @@ const App = () => {
     return (
         <div>
             <h1>Learning React</h1>
-            <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit} />
+            <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} searchAction={searchAction} />
             <hr />
 
             {stories.isError && <p>Something went wrong...</p>}
@@ -154,8 +151,8 @@ const InputWithLabel = ({id, value, type='text', onInputChange, isFocused, child
     );
 };
 
-const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
-    <form onSubmit={onSearchSubmit}>
+const SearchForm = ({ searchTerm, onSearchInput, searchAction }) => (
+    <form action={searchAction}>
         <InputWithLabel id="search" value={searchTerm} isFocused onInputChange={onSearchInput}>Search:&nbsp;</InputWithLabel>
         <button type="submit" disabled={!searchTerm}>&#x1F50D;</button>
     </form>
