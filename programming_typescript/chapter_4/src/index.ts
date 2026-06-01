@@ -23,3 +23,29 @@ let reserve: Reserve = (
     }
     return true;
 }
+
+// Here, the task is to ensure this 'call' function
+// only works for functions whose second argument is
+// a string and fails at compile time otherwise.
+function call<A1, Rest extends unknown[], R>(
+    f: (arg1: A1, arg2: string, ...args: Rest) => R,
+    arg1: A1,
+    arg2: string,
+    ...args: Rest
+): R {
+    return f(arg1, arg2, ...args)
+}
+
+function passes(a1: number, a2: string, a3?: { first: string }[]): boolean {
+    if (a2) return true;
+    return false;
+}
+
+function fails(a1: string, a2: number, a3?: { first: string }[]): boolean {
+    if (a2) return true;
+    return false;
+}
+
+call(passes, 2, 'test', [{ first: 'hello' }]);
+call(fails, 'test', 2, [{ first: 'hello' }]);
+
