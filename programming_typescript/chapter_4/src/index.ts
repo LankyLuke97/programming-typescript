@@ -49,3 +49,20 @@ function fails(a1: string, a2: number, a3?: { first: string }[]): boolean {
 call(passes, 2, 'test', [{ first: 'hello' }]);
 call(fails, 'test', 2, [{ first: 'hello' }]);
 
+// Implementing a small, typesafe assertion library
+// The below does not compare equivalent arrays as equal,
+// but this was not strictly specified in the exercise.
+// This is because arrays are references (mangling that,
+// but I know what I mean), so it's not comparing whether
+// they have the same values in the same order as it would
+// in Python. I don't personally like it, but c'est la vie.
+function is<T1, T2 extends T1>(arg1: T1, arg2: T2, ...args: T2[]): boolean {
+    return [arg2, ...args].every(arg => arg === arg1);
+}
+
+is('string', 'otherstring');
+is(true, false);
+is(42, 42);
+is(10, 'foo');
+is([1], [1, 2], [1, 2, 3]);
+
