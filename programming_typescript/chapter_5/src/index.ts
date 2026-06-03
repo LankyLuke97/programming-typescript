@@ -98,4 +98,32 @@ type Colour = 'Black' | 'White';
 type File = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 type Rank = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
+// Exeercise 3
+
+type Shoe = {
+    purpose: string;
+}
+
+class BalletFlat implements Shoe {
+    purpose = 'dancing';
+}
+
+class Boot implements Shoe {
+    purpose = 'woodcutting';
+}
+
+class Sneaker implements Shoe {
+    purpose = 'walking';
+}
+
+function createShoe(type: 'balletFlat'): BalletFlat;
+function createShoe(type: 'boot'): Boot;
+function createShoe(type: 'sneaker'): Sneaker;
+function createShoe(type: 'balletFlat' | 'boot' | 'sneaker') {
+    switch (type) {
+        case 'balletFlat': return new BalletFlat();
+        case 'boot': return new Boot();
+        case 'sneaker': return new Sneaker();
+    }
+}
 
