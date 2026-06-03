@@ -116,14 +116,54 @@ class Sneaker implements Shoe {
     purpose = 'walking';
 }
 
-function createShoe(type: 'balletFlat'): BalletFlat;
-function createShoe(type: 'boot'): Boot;
-function createShoe(type: 'sneaker'): Sneaker;
-function createShoe(type: 'balletFlat' | 'boot' | 'sneaker') {
-    switch (type) {
-        case 'balletFlat': return new BalletFlat();
-        case 'boot': return new Boot();
-        case 'sneaker': return new Sneaker();
+type ShoeCreator = {
+    create(type: 'balletFlat'): BalletFlat
+    create(type: 'boot'): Boot
+    create(type: 'sneaker'): Sneaker
+}
+let Shoe: ShoeCreator = {
+    create(type: 'balletFlat' | 'boot' | 'sneaker') {
+        switch (type) {
+            case 'balletFlat': return new BalletFlat();
+            case 'boot': return new Boot();
+            case 'sneaker': return new Sneaker();
+        }
     }
 }
+
+// Exercise 4
+
+interface BuildableRequest {
+    data?: object
+    method: 'get' | 'post'
+    url: string
+}
+
+class RequestBuilder {
+    data?: object
+    method?: 'get' | 'post'
+    url?: string
+
+    setData(data: object): this & Pick<BuildableRequest, 'data'> {
+        return Object.assign(this, { data })
+    }
+
+    setMethod(method: 'get' | 'post'): this & Pick<BuildableRequest, 'method'> {
+        return Object.assign(this, { method })
+    }
+
+    setURL(url: string): this & Pick<BuildableRequest, 'url'> {
+        return Object.assign(this, { url })
+    }
+
+    build(this: BuildableRequest) {
+        return this
+    }
+}
+
+new RequestBuilder()
+    .setData({})
+    .setMethod('post') // Try removing me!
+    .setURL('bar') // Try removing me!
+    .build()
 
